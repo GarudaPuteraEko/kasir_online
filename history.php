@@ -10,10 +10,11 @@ $user_id = $_SESSION['user_id'];
 
 // Ambil semua transaksi user, urut dari terbaru
 $transactions = $conn->query("
-    SELECT t.id, t.quantity, t.total_price, t.transaction_date, t.payment_method, p.name, p.price, u.username
+    SELECT t.*, p.name, p.price, u.username
     FROM transactions t 
     JOIN products p ON t.product_id = p.id 
     LEFT JOIN users u ON t.user_id = u.id
+    " . (is_user() ? "WHERE t.user_id = $user_id" : "") . "
     ORDER BY t.transaction_date DESC
 ");
 ?>
@@ -41,7 +42,7 @@ $transactions = $conn->query("
     <?php if (is_admin()): ?>
         | <a href="dashboard.php">Dashboard</a>
     <?php endif; ?> 
-    <?php if (is_kasir()): ?>
+    <?php if (is_kasir() || is_user()): ?>
         | <a href="dashboard.php">Kembali ke Halaman Awal</a>
     <?php endif; ?> 
     <hr>
@@ -58,6 +59,7 @@ $transactions = $conn->query("
                 <th>Jumlah</th>
                 <th>Total</th>
                 <th>Metode Pembayaran</th>
+                <th>Status</th>
                 <th>Dibuat Oleh</th>
             </tr>
             <?php 
@@ -72,6 +74,7 @@ $transactions = $conn->query("
                 <td><?= $row['quantity'] ?></td>
                 <td><?= $row['total_price'] ?></td>
                 <td><?= $row['payment_method'] ?></td>
+                <td><?= $row['status'] ?></td>
                 <td><?= htmlspecialchars($row['username'] ?? 'Unknown') ?></td>
             </tr>
             <?php endwhile; ?>

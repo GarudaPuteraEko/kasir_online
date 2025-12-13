@@ -65,6 +65,9 @@ $cart_count = $cart_count_result->fetch_assoc()['total'] ?? 0;
     <?php endif; ?>
     <a href="cart.php">Keranjang (<?= $cart_count ?> item)</a>
     <?php if (is_kasir()): ?>
+        | <a href="confirm_orders.php">Konfirmasi pembelian User</a>
+    <?php endif; ?>
+    <?php if (is_kasir() || is_user()): ?>
         | <a href="history.php">Riwayat Transaksi</a> | 
         <a href="logout.php">Logout</a>
     <?php endif; ?>

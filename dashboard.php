@@ -48,6 +48,7 @@ $products = $conn->query("SELECT * FROM products ORDER BY name");
         <a href="manage_users.php">Kelola Kasir</a> | 
         <a href="add_product.php">+ Tambah Produk Baru</a> |
         <a href="transaction.php">Buat Transaksi</a> | 
+        <a href="confirm_orders.php">Konfirmasi pembelian User</a> | 
         <a href="history.php">Riwayat Transaksi</a> | 
         <a href="logout.php">Logout</a>
     </div>

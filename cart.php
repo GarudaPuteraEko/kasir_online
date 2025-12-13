@@ -25,29 +25,41 @@ if (isset($_GET['clear'])) {
 
 // Checkout: Proses pembayaran semua isi cart
 if (isset($_POST['checkout'])) {
-    $payment_method = $_POST['payment_method']; // Ambil pilihan pembayaran
+    $payment_method = $_POST['payment_method'];
+    $status = is_user() ? 'pending' : 'confirmed';  // User: pending, lain: confirmed
 
     $cart_items = $conn->query("SELECT c.*, p.name, p.price, p.stock, p.image FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = $user_id");
 
+    $all_success = true;
     while ($item = $cart_items->fetch_assoc()) {
         $qty = $item['quantity'];
         $total_price = $item['price'] * $qty;
 
         if ($item['stock'] >= $qty) {
-            // Kurangi stok
-            $new_stock = $item['stock'] - $qty;
-            $conn->query("UPDATE products SET stock = $new_stock WHERE id = " . $item['product_id']);
-
-            // Catat transaksi dengan metode pembayaran
-            $conn->query("INSERT INTO transactions (user_id, product_id, quantity, total_price, payment_method) 
-                          VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, '$payment_method')");
+            if ($status === 'confirmed') {
+                // Kurangi stok langsung jika confirmed
+                $new_stock = $item['stock'] - $qty;
+                $conn->query("UPDATE products SET stock = $new_stock WHERE id = " . $item['product_id']);
+            }
+            // Catat transaksi dengan status
+            $conn->query("INSERT INTO transactions (user_id, product_id, quantity, total_price, payment_method, status) 
+                          VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, '$payment_method', '$status')");
+        } else {
+            $all_success = false;
         }
     }
 
-    // Kosongkan cart setelah sukses
-    $conn->query("DELETE FROM cart WHERE user_id = $user_id");
-    header("Location: cart.php?success=1");
-    exit();
+    if ($all_success) {
+        $conn->query("DELETE FROM cart WHERE user_id = $user_id");
+        if (is_user()) {
+            header("Location: cart.php?pending=1");  // User: tunggu konfirmasi
+        } else {
+            header("Location: cart.php?success=1");
+        }
+        exit();
+    } else {
+        echo "Beberapa stok tidak cukup.";
+    }
 }
 
 // Ambil isi cart dengan gambar
@@ -84,6 +96,10 @@ $cart_items = $conn->query("SELECT c.*, p.name, p.price, p.stock, p.image FROM c
             Transaksi berhasil! Keranjang telah dikosongkan. 
             <a href="history.php">Lihat Riwayat Transaksi</a>
         </p>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['pending'])): ?>
+        <p style="color:blue; font-weight:bold;">Pembelian Anda sedang menunggu konfirmasi dari admin/kasir. Silakan tunggu.</p>
     <?php endif; ?>
 
     <?php if ($cart_items->num_rows == 0): ?>

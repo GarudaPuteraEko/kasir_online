@@ -24,14 +24,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         if (password_verify($password, $row['password'])) {
-            $_SESSION['user_id'] = $row['id'];
-            $_SESSION['username'] = $row['username'];
-            $_SESSION['role'] = $row['role'];  // Simpan role di session
+            $_SESSION['user_id']   = $row['id'];
+            $_SESSION['username']  = $row['username'];
+            $_SESSION['role']      = $row['role'];  // Simpan role di session
 
             // Redirect sesuai role
             if ($row['role'] === 'admin') {
                 header("Location: dashboard.php");
+            } elseif ($row['role'] === 'kasir') {
+                header("Location: transaction.php");
+            } elseif ($row['role'] === 'user') {
+                header("Location: transaction.php");
             } else {
+                // Fallback kalau role aneh (misal NULL atau salah)
                 header("Location: transaction.php");
             }
             exit();
@@ -95,7 +100,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>
         </form>
-        <p>Belum punya akun? Silahkan minta akun kepada Admin</p>
+        <p>Belum punya akun kasir? Silahkan minta akun kepada Admin atau <a href="register_user.php">Register sebagai User</a></p>
     </div>
 </body>
 </html>

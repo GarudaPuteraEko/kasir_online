@@ -54,10 +54,10 @@ $users = $conn->query("SELECT id, username, email, role, created_at FROM users O
             <td><?= $row['id'] ?></td>
             <td><?= htmlspecialchars($row['username']) ?></td>
             <td><?= htmlspecialchars($row['email']) ?></td>
-            <td><strong><?= $row['role'] == 'admin' ? 'Admin' : 'Kasir' ?></strong></td>
+            <td><strong><?= $row['role'] == 'admin' ? 'Admin' : ($row['role'] == 'kasir' ? 'Kasir' : 'User') ?></strong></td>
             <td><?= date('d-m-Y H:i', strtotime($row['created_at'])) ?></td>
             <td>
-                <?php if ($row['role'] == 'kasir' && $row['id'] != $_SESSION['user_id']): ?>
+                <?php if ($row['role'] == 'kasir' || $row['role'] == 'user' && $row['id'] != $_SESSION['user_id']): ?>
                     <a href="manage_users.php?delete=<?= $row['id'] ?>" 
                        onclick="return confirm('Yakin hapus kasir ini?')">Hapus</a>
                 <?php else: ?>

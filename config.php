@@ -21,9 +21,24 @@ function is_kasir() {
     return isset($_SESSION['role']) && $_SESSION['role'] === 'kasir';
 }
 
+function is_user() {
+    return isset($_SESSION['role']) && $_SESSION['role'] === 'user';
+}
+
+function is_kasir_or_admin() {
+    return is_admin() || is_kasir();
+}
+
 function require_admin() {
     if (!is_admin()) {
         header("Location: transaction.php");  // Kasir diarahkan ke halaman jualan
+        exit();
+    }
+}
+
+function require_kasir_or_admin() {
+    if (!is_kasir_or_admin()) {
+        header("Location: transaction.php");
         exit();
     }
 }
