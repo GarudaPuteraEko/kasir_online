@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body class="coffee-theme">
     <div class="container">
-        <h2>Register Akun User</h2>
+        <h2>Register</h2>
         <form method="POST">
             <input type="text" name="username" placeholder="Username" required>
             <input type="email" name="email" placeholder="Email" required>
