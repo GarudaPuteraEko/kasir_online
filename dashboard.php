@@ -56,14 +56,21 @@ $products = $stmt->get_result();
         .container { max-width: 1000px; margin: auto; padding: 20px; }
         h2 { color: #854442; text-align: center; }
         h3 { color: #854442; }
-        a { color: #854442;}
+        a { color: #854442; text-decoration: none; }
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
         th, td { border: 1px solid #ccc; padding: 10px; text-align: left; vertical-align: top; }
         th { background: #854442; color: white; }
         img { max-width: 120px; max-height: 120px; object-fit: cover; border-radius: 8px; }
         .placeholder { opacity: 0.5; }
         .nav-links { margin: 20px 0; font-size: 16px; }
-        button { padding: 5px 10px; background: #854442; color: white; border: none; cursor: pointer; }
+        button { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #4b3832; }
+        .btn { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
+        .btn:hover { background: #4b3832; }
+        .btn-edit { padding: 5px 10px; background: #ffca28; color: black; cursor: pointer; font-size: 13px; border: 1px solid black; border-radius: 3px; margin-bottom: 3px; display: inline-block; }
+        .btn-edit:hover { background: #f9a825; }
+        .btn-delete { padding: 5px 10px; background: #d32f2f; color: white; cursor: pointer; font-size: 13px; border: 1px solid black; border-radius: 3px; display: inline-block; }
+        .btn-delete:hover { background: #b71c1c; }
         select, input[type="text"] { padding: 5px; margin: 5px 0; }
     </style>
 </head>
@@ -72,10 +79,10 @@ $products = $stmt->get_result();
     <h2>Selamat Datang di Dashboard Kasir Coffee Shop</h2>
 
     <div class="nav-links">
-        <a href="add_product.php">+ Tambah Produk Baru</a> |
-        <a href="manage_categories.php">Kelola Kategori</a> |
-        <a href="history.php">Riwayat Transaksi</a> |
-        <a href="logout.php">Logout</a>
+        <a href="add_product.php" class="btn">+ Tambah Produk Baru</a>
+        <a href="manage_categories.php" class="btn">Kelola Kategori</a>
+        <a href="history.php" class="btn">Riwayat Transaksi</a>
+        <a href="logout.php" class="btn">Logout</a>
     </div>
 
     <hr>
@@ -146,9 +153,12 @@ $products = $stmt->get_result();
                 <td><?= $row['stock'] ?></td>
                 <td><?= htmlspecialchars($row['description'] ?: '-') ?></td>
                 <td>
-                    <a href="edit_product.php?id=<?= $row['id'] ?>&search=<?= urlencode($search) ?>">Edit</a> |
+                    <a href="edit_product.php?id=<?= $row['id'] ?>&search=<?= urlencode($search) ?>" class="btn-edit">Edit</a>
                     <a href="dashboard.php?delete=<?= $row['id'] ?>&search=<?= urlencode($search) ?>" 
-                       onclick="return confirm('Yakin hapus produk ini?')">Hapus</a>
+                       onclick="return confirm('Yakin hapus produk ini?')"
+                       class="btn-delete">
+                       Hapus
+                    </a>
                 </td>
             </tr>
             <?php endwhile; ?>

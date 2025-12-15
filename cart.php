@@ -80,8 +80,13 @@ $cart_items = $conn->query("SELECT c.*, p.name, p.price, p.stock, p.image FROM c
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
         th { background: #854442; color: white; }
-        button { padding: 8px 15px; background: #854442; color: white; border: none; cursor: pointer; }
-        a { color: #854442; }
+        button { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #4b3832; }
+        .btn { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
+        .btn:hover { background: #4b3832; }
+        a { color: #854442; text-decoration: none; }
+        .btn-delete { padding: 5px 10px; background: #d32f2f; color: white; cursor: pointer; font-size: 13px; border: 1px solid black; border-radius: 3px; display: inline-block; }
+        .btn-delete:hover { background: #b71c1c; }
         .total { font-size: 18px; font-weight: bold; text-align: right; margin: 20px 0; }
         img { object-fit: cover; border-radius: 8px; }
     </style>
@@ -89,7 +94,7 @@ $cart_items = $conn->query("SELECT c.*, p.name, p.price, p.stock, p.image FROM c
 <body>
 <div class="container">
     <h3>Keranjang Belanja</h3>
-    <a href="transaction.php">← Tambah Produk Lagi</a>
+    <a href="transaction.php" class="btn">← Tambah Produk Lagi</a>
     <hr>
 
     <?php if (isset($_GET['success'])): ?>
@@ -132,7 +137,7 @@ $cart_items = $conn->query("SELECT c.*, p.name, p.price, p.stock, p.image FROM c
                 <td><?= $item['price'] ?></td>
                 <td><?= $item['quantity'] ?></td>
                 <td><?= $subtotal ?></td>
-                <td><a href="cart.php?remove=<?= $item['product_id'] ?>" onclick="return confirm('Hapus dari keranjang?')">Hapus</a></td>
+                <td><a href="cart.php?remove=<?= $item['product_id'] ?>" onclick="return confirm('Hapus dari keranjang?')" class="btn-delete">Hapus</a></td>
             </tr>
             <?php endwhile; ?>
             <tr>
@@ -154,7 +159,7 @@ $cart_items = $conn->query("SELECT c.*, p.name, p.price, p.stock, p.image FROM c
             </select>
             <br><br>
             <button type="submit" name="checkout">Checkout & Bayar</button>
-            <a href="cart.php?clear=1" onclick="return confirm('Kosongkan keranjang?')">Kosongkan Keranjang</a>
+            <a href="cart.php?clear=1" onclick="return confirm('Kosongkan keranjang?')" class="btn">Kosongkan Keranjang</a>
         </form>
     <?php endif; ?>
 </div>

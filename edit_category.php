@@ -32,8 +32,12 @@ if (isset($_POST['update_category'])) {
         .container { max-width: 600px; margin: auto; padding: 20px; }
         h2 { color: #854442; }
         input { width: 100%; padding: 8px; margin: 10px 0; }
-        button { padding: 8px 15px; background: #854442; color: white; border: none; cursor: pointer; }
-        a { color: #854442; }
+        button { padding: 5px 10px; background: #854442; color: white; border: none; cursor: pointer; }
+        a { color: #854442; text-decoration: none; }
+        button { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #4b3832; }
+        .btn { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
+        .btn:hover { background: #4b3832; }
     </style>
 </head>
 <body>
@@ -46,7 +50,7 @@ if (isset($_POST['update_category'])) {
         <input type="text" name="name" value="<?= htmlspecialchars($cat['name']) ?>" required>
         <br><br>
         <button type="submit" name="update_category">Update Kategori</button>
-        <a href="manage_categories.php">Batal</a>
+        <a href="manage_categories.php" class="btn">Batal</a>
     </form>
 </div>
 </body>

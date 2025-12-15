@@ -35,8 +35,11 @@ if (isset($_POST['update_product'])) {
         .container { max-width: 800px; margin: auto; padding: 20px; }
         h3 { color: #854442; }
         input, textarea { width: 100%; padding: 5px; margin: 5px 0; }
-        button { padding: 5px 10px; background: #854442; color: white; border: none; cursor: pointer; }
-        a { color: #854442; }
+        button { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #4b3832; }
+        .btn { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
+        .btn:hover { background: #4b3832; }
+        a { color: #854442; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -71,7 +74,7 @@ if (isset($_POST['update_product'])) {
         </select><br><br>
 
         <button type="submit" name="update_product">Update Produk</button>
-        <a href="dashboard.php">Batal</a>
+        <a href="dashboard.php" class="btn">Batal</a>
     </form>
 </div>
 </body>

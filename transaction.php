@@ -98,8 +98,11 @@ if (isset($_POST['add_to_cart'])) {
         th { background: #854442; color: white; }
         img { width: 80px; height: 80px; object-fit: cover; }
         input[type="number"] { width: 60px; padding: 5px; }
-        button { padding: 5px 10px; background: #854442; color: white; border: none; cursor: pointer; }
-        a { color: #854442; }
+        button { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #4b3832; }
+        .btn { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
+        .btn:hover { background: #4b3832; }
+        a { color: #854442; text-decoration: none;}
         select, input[type="text"] { padding: 5px; margin: 5px 0; }
         .message { text-align: center; padding: 10px; font-weight: bold; }
     </style>
@@ -107,8 +110,8 @@ if (isset($_POST['add_to_cart'])) {
 <body>
 <div class="container">
     <h3>Pilih Produk</h3>
-    <a href="cart.php">Keranjang (<?= $cart_count ?> item)</a> |
-    <a href="logout.php">Logout</a>
+    <a href="cart.php" class="btn">Keranjang (<?= $cart_count ?> item)</a>
+    <a href="logout.php" class="btn">Logout</a>
     <hr>
 
     <!-- Filter Simple -->

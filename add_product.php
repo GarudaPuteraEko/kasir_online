@@ -39,13 +39,14 @@ if (isset($_POST['add_product'])) {
         h3 { color: #854442; }
         input, textarea { width: 100%; padding: 5px; margin: 5px 0; }
         button { padding: 5px 10px; background: #854442; color: white; border: none; cursor: pointer; }
-        a { color: #854442; }
+        .btn { padding: 5px 10px; background: #854442; color: white; border: none; cursor: pointer; font-size: 13px; }
+        a { color: #854442; text-decoration: none; }
     </style>
 </head>
 <body>
 <div class="container">
     <h3>Tambah Produk Baru</h3>
-    <a href="dashboard.php">Kembali ke Dashboard</a>
+    <a href="dashboard.php" class="btn">Kembali ke Dashboard</a>
     <hr>
 
     <form method="POST">

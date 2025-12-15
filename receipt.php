@@ -113,6 +113,9 @@ $payment_method = $rows[0]['payment_method'] ?? 'Tunai';
             body { padding: 10px; }
             .no-print { display: none; }
         }
+        .btn { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
+        .btn:hover { background: #4b3832; }
+        a { color: #854442; text-decoration: none;}
     </style>
     <script>
         window.onload = function() {
@@ -154,7 +157,7 @@ $payment_method = $rows[0]['payment_method'] ?? 'Tunai';
         </div>
 
         <div class="no-print" style="margin-top:40px; text-align:center; font-size:13px;">
-            <a href="cart.php">Kembali ke Keranjang</a>
+            <a href="cart.php" class="btn">Kembali ke Keranjang</a>
         </div>
     </div>
 </body>

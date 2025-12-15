@@ -32,14 +32,16 @@ $transactions = $conn->query("
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
         th { background: #854442; color: white; }
-        a { color: #854442; }
+        a { color: #854442; text-decoration: none; }
+        .btn { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
+        .btn:hover { background: #4b3832; }
         .no-data { text-align: center; padding: 20px; font-style: italic; }
     </style>
 </head>
 <body>
 <div class="container">
     <h3>Riwayat Transaksi</h3> 
-    <a href="dashboard.php">Dashboard</a>
+    <a href="dashboard.php" class="btn">Dashboard</a>
     <hr>
 
     <?php if ($transactions->num_rows == 0): ?>
