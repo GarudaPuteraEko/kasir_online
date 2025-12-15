@@ -2,6 +2,7 @@
 include 'config.php';
 session_start();
 require_login();
+require_user();
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -25,41 +26,29 @@ if (isset($_GET['clear'])) {
 
 // Checkout: Proses pembayaran semua isi cart
 if (isset($_POST['checkout'])) {
-    $payment_method = $_POST['payment_method'];
-    $status = is_user() ? 'pending' : 'confirmed';  // User: pending, lain: confirmed
+    $payment_method = $_POST['payment_method'] ?? 'Tunai';  // Opsional simpan
 
-    $cart_items = $conn->query("SELECT c.*, p.name, p.price, p.stock, p.image FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = $user_id");
+    $cart_items = $conn->query("SELECT c.*, p.price, p.stock FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = $user_id");
 
-    $all_success = true;
     while ($item = $cart_items->fetch_assoc()) {
         $qty = $item['quantity'];
         $total_price = $item['price'] * $qty;
 
         if ($item['stock'] >= $qty) {
-            if ($status === 'confirmed') {
-                // Kurangi stok langsung jika confirmed
-                $new_stock = $item['stock'] - $qty;
-                $conn->query("UPDATE products SET stock = $new_stock WHERE id = " . $item['product_id']);
-            }
-            // Catat transaksi dengan status
-            $conn->query("INSERT INTO transactions (user_id, product_id, quantity, total_price, payment_method, status) 
-                          VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, '$payment_method', '$status')");
-        } else {
-            $all_success = false;
+            // Kurangi stok langsung
+            $new_stock = $item['stock'] - $qty;
+            $conn->query("UPDATE products SET stock = $new_stock WHERE id = " . $item['product_id']);
+
+            // Catat transaksi (tanpa status)
+            $conn->query("INSERT INTO transactions (user_id, product_id, quantity, total_price, payment_method) 
+                          VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, '$payment_method')");
         }
     }
 
-    if ($all_success) {
-        $conn->query("DELETE FROM cart WHERE user_id = $user_id");
-        if (is_user()) {
-            header("Location: cart.php?pending=1");  // User: tunggu konfirmasi
-        } else {
-            header("Location: cart.php?success=1");
-        }
-        exit();
-    } else {
-        echo "Beberapa stok tidak cukup.";
-    }
+    // Kosongkan cart
+    $conn->query("DELETE FROM cart WHERE user_id = $user_id");
+    header("Location: cart.php?success=1");
+    exit();
 }
 
 // Ambil isi cart dengan gambar
@@ -87,8 +76,7 @@ $cart_items = $conn->query("SELECT c.*, p.name, p.price, p.stock, p.image FROM c
 <body>
 <div class="container">
     <h3>Keranjang Belanja</h3>
-    <a href="transaction.php">← Tambah Produk Lagi</a> | 
-    <a href="history.php">Riwayat Transaksi</a>
+    <a href="transaction.php">← Tambah Produk Lagi</a>
     <hr>
 
     <?php if (isset($_GET['success'])): ?>

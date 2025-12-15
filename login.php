@@ -26,18 +26,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (password_verify($password, $row['password'])) {
             $_SESSION['user_id']   = $row['id'];
             $_SESSION['username']  = $row['username'];
-            $_SESSION['role']      = $row['role'];  // Simpan role di session
+            $_SESSION['role']      = $row['role'];  
 
-            // Redirect sesuai role
             if ($row['role'] === 'admin') {
                 header("Location: dashboard.php");
-            } elseif ($row['role'] === 'kasir') {
-                header("Location: transaction.php");
-            } elseif ($row['role'] === 'user') {
-                header("Location: transaction.php");
             } else {
-                // Fallback kalau role aneh (misal NULL atau salah)
-                header("Location: transaction.php");
+                header("Location: transaction.php");  // User langsung ke halaman belanja
             }
             exit();
         } else {

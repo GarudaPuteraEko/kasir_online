@@ -2,6 +2,7 @@
 include 'config.php';
 session_start();
 require_login();
+require_user();
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -60,17 +61,8 @@ $cart_count = $cart_count_result->fetch_assoc()['total'] ?? 0;
 <body>
 <div class="container">
     <h3>Pilih Produk</h3>
-    <?php if (is_admin()): ?>
-        <a href="dashboard.php">Kembali ke Dashboard</a> | 
-    <?php endif; ?>
-    <a href="cart.php">Keranjang (<?= $cart_count ?> item)</a>
-    <?php if (is_kasir()): ?>
-        | <a href="confirm_orders.php">Konfirmasi pembelian User</a>
-    <?php endif; ?>
-    <?php if (is_kasir() || is_user()): ?>
-        | <a href="history.php">Riwayat Transaksi</a> | 
-        <a href="logout.php">Logout</a>
-    <?php endif; ?>
+    <a href="cart.php">Keranjang (<?= $cart_count ?> item)</a> |
+    <a href="logout.php">Logout</a>
     <hr>
 
     <form method="POST">

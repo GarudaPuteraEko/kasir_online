@@ -2,6 +2,7 @@
 include 'config.php';
 session_start();
 require_login();
+require_admin();
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -38,13 +39,7 @@ $transactions = $conn->query("
 <body>
 <div class="container">
     <h3>Riwayat Transaksi</h3> 
-    <a href="cart.php">Keranjang</a>
-    <?php if (is_admin()): ?>
-        | <a href="dashboard.php">Dashboard</a>
-    <?php endif; ?> 
-    <?php if (is_kasir() || is_user()): ?>
-        | <a href="dashboard.php">Kembali ke Halaman Awal</a>
-    <?php endif; ?> 
+    <a href="dashboard.php">Dashboard</a>
     <hr>
 
     <?php if ($transactions->num_rows == 0): ?>

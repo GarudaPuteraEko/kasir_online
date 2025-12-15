@@ -1,18 +1,15 @@
 <?php
 include 'config.php';
-session_start();
-require_login();
-require_admin();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $email = $_POST['email'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    $sql = "INSERT INTO users (username, email, password, role) VALUES ('$username', '$email', '$password', 'kasir')";
+    $sql = "INSERT INTO users (username, email, password, role) VALUES ('$username', '$email', '$password', 'user')";
 
     if ($conn->query($sql) === TRUE) {
-        header("Location: manage_users.php");
+        header("Location: login.php");
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
@@ -23,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register - Coffee Shop Kasir</title>
+    <title>Register User - Coffee Shop Kasir</title>
     <style>
         body { background-color: #f5e6d3; font-family: Arial, sans-serif; color: #4b3832; }
         .container { 
@@ -58,16 +55,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body class="coffee-theme">
     <div class="container">
-        <h2>Register Akun</h2>
+        <h2>Register Akun User</h2>
         <form method="POST">
             <input type="text" name="username" placeholder="Username" required>
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Register</button>
         </form>
-        <p style="text-align:center; margin-top:15px;">
-            <a href="manage_users.php" style="color:#854442;">Kembali ke Kelola Kasir</a>
-        </p>
+        <p>Sudah punya akun? <a href="login.php">Login</a></p>
     </div>
 </body>
 </html>
