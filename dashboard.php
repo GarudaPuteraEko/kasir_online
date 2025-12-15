@@ -17,7 +17,7 @@ if (isset($_GET['delete'])) {
 }
 
 // Ambil semua produk
-$products = $conn->query("SELECT * FROM products ORDER BY name");
+$products = $conn->query("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY p.id ASC");
 ?>
 
 <!DOCTYPE html>
@@ -46,6 +46,7 @@ $products = $conn->query("SELECT * FROM products ORDER BY name");
 
     <div class="nav-links">
         <a href="add_product.php">+ Tambah Produk Baru</a> |
+        <a href="manage_categories.php">Kelola Kategori</a> | 
         <a href="history.php">Riwayat Transaksi</a> | 
         <a href="logout.php">Logout</a>
     </div>
@@ -62,6 +63,7 @@ $products = $conn->query("SELECT * FROM products ORDER BY name");
                 <th>ID</th>
                 <th>Gambar</th>
                 <th>Nama</th>
+                <th>Kategori</th>
                 <th>Harga</th>
                 <th>Stok</th>
                 <th>Deskripsi</th>
@@ -79,6 +81,7 @@ $products = $conn->query("SELECT * FROM products ORDER BY name");
                     <?php endif; ?>
                 </td>
                 <td><strong><?= htmlspecialchars($row['name']) ?></strong></td>
+                <td><?= $row['category_name'] ?? '-' ?></td>
                 <td><?= $row['price'] ?></td>
                 <td><?= $row['stock'] ?></td>
                 <td><?= htmlspecialchars($row['description']) ?: '-' ?></td>

@@ -17,8 +17,9 @@ if (isset($_POST['update_product'])) {
     $stock = $_POST['stock'];
     $description = $_POST['description'];
     $image = $_POST['image'] ?: NULL;
+    $category_id = $_POST['category_id'] ?: NULL;
 
-    $conn->query("UPDATE products SET name='$name', price=$price, stock=$stock, description='$description', image='$image' WHERE id=$id");
+    $conn->query("UPDATE products SET name='$name', price=$price, stock=$stock, description='$description', image='$image', category_id=" . ($category_id ? $category_id : 'NULL') . " WHERE id=$id");
     header("Location: dashboard.php");
     exit();
 }
@@ -58,6 +59,16 @@ if (isset($_POST['update_product'])) {
 
         Gambar (URL Saat Ini: <?= $product['image'] ? $product['image'] : 'Tidak ada' ?>)<br>
         <input type="text" name="image" value="<?= htmlspecialchars($product['image']) ?>" placeholder="https://example.com/gambar.jpg"><br><br>
+
+        Kategori<br>
+        <select name="category_id">
+            <option value="">-- Tidak Ada Kategori --</option>
+            <?php 
+            $cats = $conn->query("SELECT * FROM categories ORDER BY name");
+            while($cat = $cats->fetch_assoc()): ?>
+            <option value="<?= $cat['id'] ?>" <?= $product['category_id'] == $cat['id'] ? 'selected' : '' ?>><?= $cat['name'] ?></option>
+            <?php endwhile; ?>
+        </select><br><br>
 
         <button type="submit" name="update_product">Update Produk</button>
         <a href="dashboard.php">Batal</a>

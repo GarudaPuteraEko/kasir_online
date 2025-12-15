@@ -14,9 +14,10 @@ if (isset($_POST['add_product'])) {
     $stock       = $_POST['stock'];
     $description = $_POST['description'];
     $image       = $_POST['image'] ?: NULL;
+    $category_id = $_POST['category_id'] ?: NULL;
 
-    $sql = "INSERT INTO products (name, price, stock, description, image) 
-            VALUES ('$name', '$price', '$stock', '$description', '$image')";
+    $sql = "INSERT INTO products (name, price, stock, description, image, category_id) 
+        VALUES ('$name', $price, $stock, '$description', '$image', " . ($category_id ? $category_id : 'NULL') . ")";
 
     if ($conn->query($sql) === TRUE) {
         header("Location: dashboard.php");
@@ -50,18 +51,28 @@ if (isset($_POST['add_product'])) {
     <form method="POST">
         Nama Produk<br>
         <input type="text" name="name" required><br><br>
-
+        
         Harga<br>
         <input type="number" name="price" required><br><br>
-
+        
         Stok<br>
         <input type="number" name="stock" required><br><br>
-
+        
         Deskripsi<br>
         <textarea name="description"></textarea><br><br>
-
+        
         Gambar (URL)<br>
         <input type="text" name="image" placeholder="https://example.com/gambar.jpg"><br><br>
+        
+        Kategori<br>
+        <select name="category_id">
+            <option value="">-- Tidak Ada Kategori --</option>
+            <?php 
+            $cats = $conn->query("SELECT * FROM categories ORDER BY name");
+            while($cat = $cats->fetch_assoc()): ?>
+            <option value="<?= $cat['id'] ?>"><?= $cat['name'] ?></option>
+            <?php endwhile; ?>
+        </select><br><br>
 
         <button type="submit" name="add_product">Tambah Produk</button>
     </form>
