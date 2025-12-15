@@ -105,7 +105,7 @@ $products = $stmt->get_result();
         
         <button type="submit">Filter</button>
         <?php if ($search || $category_id): ?>
-            <a href="dashboard.php">Reset</a>
+            <a href="dashboard.php" class="btn">Reset</a>
         <?php endif; ?>
     </form>
     <hr>

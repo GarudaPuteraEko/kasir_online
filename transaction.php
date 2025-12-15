@@ -128,7 +128,7 @@ if (isset($_POST['add_to_cart'])) {
         
         <button type="submit">Filter</button>
         <?php if ($search || $category_id): ?>
-            <a href="transaction.php">Reset</a>
+            <a href="transaction.php" class="btn">Reset</a>
         <?php endif; ?>
     </form>
     <hr>
@@ -144,6 +144,10 @@ if (isset($_POST['add_to_cart'])) {
             Tidak ada produk ditemukan untuk pencarian "<strong><?= htmlspecialchars($search) ?></strong>".
                 <a href="dashboard.php">Tampilkan semua produk</a>
         <?php else: ?>
+
+        <?php if ($search !== ''): ?>
+            <p>Menampilkan hasil pencarian untuk "<strong><?= htmlspecialchars($search) ?></strong>" (<?= $products->num_rows ?> produk ditemukan)</p>
+        <?php endif; ?>
             <table>
                 <tr>
                     <th>Gambar</th>

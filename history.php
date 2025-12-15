@@ -41,7 +41,7 @@ $transactions = $conn->query("
 <body>
 <div class="container">
     <h3>Riwayat Transaksi</h3> 
-    <a href="dashboard.php" class="btn">Dashboard</a>
+    <a href="dashboard.php" class="btn">← Kembali ke Dashboard</a>
     <hr>
 
     <?php if ($transactions->num_rows == 0): ?>

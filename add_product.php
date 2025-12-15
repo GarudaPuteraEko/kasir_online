@@ -38,8 +38,10 @@ if (isset($_POST['add_product'])) {
         .container { max-width: 800px; margin: auto; padding: 20px; }
         h3 { color: #854442; }
         input, textarea { width: 100%; padding: 5px; margin: 5px 0; }
-        button { padding: 5px 10px; background: #854442; color: white; border: none; cursor: pointer; }
-        .btn { padding: 5px 10px; background: #854442; color: white; border: none; cursor: pointer; font-size: 13px; }
+        button { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #4b3832; }
+        .btn { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
+        .btn:hover { background: #4b3832; }
         a { color: #854442; text-decoration: none; }
     </style>
 </head>
