@@ -78,6 +78,7 @@ $cart_count = $cart_count_result->fetch_assoc()['total'] ?? 0;
             <tr>
                 <th>Gambar</th>
                 <th>Nama Produk</th>
+                <th>Deskripsi</th>
                 <th>Harga</th>
                 <th>Stok</th>
                 <th>Jumlah</th>
@@ -93,6 +94,7 @@ $cart_count = $cart_count_result->fetch_assoc()['total'] ?? 0;
                     <?php endif; ?>
                 </td>
                 <td><strong><?= htmlspecialchars($row['name']) ?></strong></td>
+                <td><?= htmlspecialchars($row['description']) ?: '-' ?></td>
                 <td><?= $row['price'] ?></td>
                 <td><?= $row['stock'] ?></td>
                 <td>
