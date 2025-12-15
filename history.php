@@ -54,7 +54,6 @@ $transactions = $conn->query("
                 <th>Jumlah</th>
                 <th>Total</th>
                 <th>Metode Pembayaran</th>
-                <th>Status</th>
                 <th>Dibuat Oleh</th>
             </tr>
             <?php 
@@ -69,7 +68,6 @@ $transactions = $conn->query("
                 <td><?= $row['quantity'] ?></td>
                 <td><?= $row['total_price'] ?></td>
                 <td><?= $row['payment_method'] ?></td>
-                <td><?= $row['status'] ?></td>
                 <td><?= htmlspecialchars($row['username'] ?? 'Unknown') ?></td>
             </tr>
             <?php endwhile; ?>

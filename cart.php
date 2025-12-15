@@ -26,29 +26,42 @@ if (isset($_GET['clear'])) {
 
 // Checkout: Proses pembayaran semua isi cart
 if (isset($_POST['checkout'])) {
-    $payment_method = $_POST['payment_method'] ?? 'Tunai';  // Opsional simpan
+    $payment_method = $_POST['payment_method'] ?? 'Tunai';
 
     $cart_items = $conn->query("SELECT c.*, p.price, p.stock FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = $user_id");
+
+    $all_success = true;
+    $trans_ids = [];  // Simpan semua ID transaksi yang baru dibuat
 
     while ($item = $cart_items->fetch_assoc()) {
         $qty = $item['quantity'];
         $total_price = $item['price'] * $qty;
 
         if ($item['stock'] >= $qty) {
-            // Kurangi stok langsung
+            // Kurangi stok
             $new_stock = $item['stock'] - $qty;
             $conn->query("UPDATE products SET stock = $new_stock WHERE id = " . $item['product_id']);
 
-            // Catat transaksi (tanpa status)
-            $conn->query("INSERT INTO transactions (user_id, product_id, quantity, total_price, payment_method) 
-                          VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, '$payment_method')");
+            // Catat transaksi
+            $insert_query = "INSERT INTO transactions (user_id, product_id, quantity, total_price, payment_method) 
+                             VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, '$payment_method')";
+            $conn->query($insert_query);
+
+            // Simpan ID transaksi terakhir yang baru saja dibuat
+            $trans_ids[] = $conn->insert_id;
+        } else {
+            $all_success = false;
         }
     }
 
     // Kosongkan cart
     $conn->query("DELETE FROM cart WHERE user_id = $user_id");
-    header("Location: cart.php?success=1");
-    exit();
+
+    if ($all_success) {
+        $conn->query("DELETE FROM cart WHERE user_id = $user_id");
+        header("Location: receipt.php");
+        exit();
+    }
 }
 
 // Ambil isi cart dengan gambar
@@ -82,7 +95,6 @@ $cart_items = $conn->query("SELECT c.*, p.name, p.price, p.stock, p.image FROM c
     <?php if (isset($_GET['success'])): ?>
         <p style="color:green; font-weight:bold;">
             Transaksi berhasil! Keranjang telah dikosongkan. 
-            <a href="history.php">Lihat Riwayat Transaksi</a>
         </p>
     <?php endif; ?>
 

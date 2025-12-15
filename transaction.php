@@ -71,6 +71,16 @@ if (isset($_POST['add_to_cart'])) {
     } else {
         $message = "Stok tidak cukup!";
     }
+
+    $redirect_url = "transaction.php";
+    if (!empty($_GET['search'])) {
+        $redirect_url .= "?search=" . urlencode($_GET['search']);
+    }
+    if (!empty($_GET['category'])) {
+        $redirect_url .= ($redirect_url == "transaction.php" ? "?" : "&") . "category=" . urlencode($_GET['category']);
+    }
+    header("Location: $redirect_url");
+    exit();
 }
 ?>
 
