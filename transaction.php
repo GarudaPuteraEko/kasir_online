@@ -63,6 +63,9 @@ $grand_total = $total_result->fetch_assoc()['total'] ?? 0;
 if (isset($_POST['checkout'])) {
     $payment_method = $_POST['payment_method'] ?? 'Tunai';
 
+    // Generate session unik untuk checkout ini
+    $checkout_session = uniqid('sess_', true);  // Contoh: sess_67a8b9c0d1e2f
+
     $cart_items = $conn->query("SELECT c.*, p.price, p.stock FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = $user_id");
 
     $all_success = true;
@@ -72,11 +75,13 @@ if (isset($_POST['checkout'])) {
         $total_price = $item['price'] * $qty;
 
         if ($item['stock'] >= $qty) {
+            // Kurangi stok
             $new_stock = $item['stock'] - $qty;
             $conn->query("UPDATE products SET stock = $new_stock WHERE id = " . $item['product_id']);
 
-            $conn->query("INSERT INTO transactions (user_id, product_id, quantity, total_price, payment_method) 
-                          VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, '$payment_method')");
+            // Catat transaksi dengan checkout_session
+            $conn->query("INSERT INTO transactions (user_id, product_id, quantity, total_price, payment_method, checkout_session) 
+                          VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, '$payment_method', '$checkout_session')");
         } else {
             $all_success = false;
         }
@@ -84,7 +89,8 @@ if (isset($_POST['checkout'])) {
 
     if ($all_success && $grand_total > 0) {
         $conn->query("DELETE FROM cart WHERE user_id = $user_id");
-        header("Location: receipt.php");
+        // Redirect ke receipt dengan session
+        header("Location: receipt.php?session=$checkout_session");
         exit();
     } else {
         $message = "Checkout gagal: Stok tidak cukup atau keranjang kosong.";
