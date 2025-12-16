@@ -2,7 +2,6 @@
 include 'config.php';
 session_start();
 require_login();
-require_admin();
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -55,7 +54,6 @@ $transactions = $conn->query("
                 <th>Harga Satuan</th>
                 <th>Jumlah</th>
                 <th>Total</th>
-                <th>Metode Pembayaran</th>
                 <th>Dibuat Oleh</th>
             </tr>
             <?php 
@@ -69,7 +67,6 @@ $transactions = $conn->query("
                 <td><?= $row['price'] ?></td>
                 <td><?= $row['quantity'] ?></td>
                 <td><?= $row['total_price'] ?></td>
-                <td><?= $row['payment_method'] ?></td>
                 <td><?= htmlspecialchars($row['username'] ?? 'Unknown') ?></td>
             </tr>
             <?php endwhile; ?>

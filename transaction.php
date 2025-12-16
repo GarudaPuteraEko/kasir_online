@@ -81,8 +81,8 @@ if (isset($_POST['checkout'])) {
                 $new_stock = $item['stock'] - $qty;
                 $conn->query("UPDATE products SET stock = $new_stock WHERE id = " . $item['product_id']);
 
-                $conn->query("INSERT INTO transactions (user_id, product_id, quantity, total_price, payment_method, checkout_session) 
-                              VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, 'Tunai', '$checkout_session')");
+                $conn->query("INSERT INTO transactions (user_id, product_id, quantity, total_price, checkout_session) 
+                    VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, '$checkout_session')");
             } else {
                 $all_success = false;
             }
@@ -146,6 +146,7 @@ if (isset($_POST['checkout'])) {
     <!-- Kiri: Daftar Produk -->
     <div class="left">
         <h3>Pilih Produk</h3>
+        <a href="history.php" class="btn">Riwayat Transaksi</a>
         <a href="logout.php" class="btn">Logout</a>
         <hr>
 

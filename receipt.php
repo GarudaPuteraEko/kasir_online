@@ -86,7 +86,6 @@ $tanggal = date('d-m-Y H:i:s', strtotime($rows[0]['transaction_date']));
         <hr>
 
         <div class="info center"><strong><?= $tanggal ?></strong></div>
-        <div class="info center">Metode: <strong>Tunai</strong></div>
         <hr>
 
         <?php foreach ($rows as $row): ?>
