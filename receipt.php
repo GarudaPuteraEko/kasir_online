@@ -12,9 +12,13 @@ if (!isset($_SESSION['user_id']) || !isset($_GET['session'])) {
 $user_id = $_SESSION['user_id'];
 $checkout_session = $_GET['session'];
 
+// Ambil nominal dibayar dan kembalian dari URL
+$paid_amount = (int)($_GET['paid'] ?? 0);
+$change = (int)($_GET['change'] ?? 0);
+
 // Ambil transaksi berdasarkan checkout_session
 $items = $conn->query("
-    SELECT t.quantity, t.total_price, t.transaction_date, t.payment_method, p.name, p.price 
+    SELECT t.quantity, t.total_price, t.transaction_date, p.name, p.price 
     FROM transactions t 
     JOIN products p ON t.product_id = p.id 
     WHERE t.user_id = $user_id AND t.checkout_session = '$checkout_session'
@@ -33,7 +37,6 @@ while ($row = $items->fetch_assoc()) {
 }
 
 $tanggal = date('d-m-Y H:i:s', strtotime($rows[0]['transaction_date']));
-$payment_method = $rows[0]['payment_method'] ?? 'Tunai';
 ?>
 
 <!DOCTYPE html>
@@ -60,6 +63,8 @@ $payment_method = $rows[0]['payment_method'] ?? 'Tunai';
         .item-detail { margin-left: 10px; font-size: 15px; }
         .total { font-size: 20px; font-weight: bold; text-align: right; margin: 20px 0; }
         .thanks { font-size: 18px; font-weight: bold; text-align: center; margin: 25px 0 10px; }
+        .payment-info { font-size: 16px; margin: 15px 0; text-align: right; }
+        .change { font-size: 18px; font-weight: bold; color: green; text-align: right; margin: 10px 0; }
         .btn { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
         .btn:hover { background: #4b3832; }
         a { color: #854442; text-decoration: none; }
@@ -81,7 +86,7 @@ $payment_method = $rows[0]['payment_method'] ?? 'Tunai';
         <hr>
 
         <div class="info center"><strong><?= $tanggal ?></strong></div>
-        <div class="info center">Metode: <strong><?= htmlspecialchars($payment_method) ?></strong></div>
+        <div class="info center">Metode: <strong>Tunai</strong></div>
         <hr>
 
         <?php foreach ($rows as $row): ?>
@@ -98,6 +103,20 @@ $payment_method = $rows[0]['payment_method'] ?? 'Tunai';
         <div class="total">
             TOTAL: Rp <?= number_format($total) ?>
         </div>
+
+        <div class="payment-info">
+            Dibayar: Rp <?= number_format($paid_amount) ?>
+        </div>
+        <?php if ($change > 0): ?>
+            <div class="change">
+                Kembalian: Rp <?= number_format($change) ?>
+            </div>
+        <?php elseif ($change == 0): ?>
+            <div class="payment-info">
+                Pas, tidak ada kembalian
+            </div>
+        <?php endif; ?>
+
         <hr>
 
         <div class="thanks">
@@ -108,7 +127,7 @@ $payment_method = $rows[0]['payment_method'] ?? 'Tunai';
         </div>
 
         <div class="no-print" style="margin-top:40px; text-align:center; font-size:13px;">
-            <a href="transaction.php" class="btn">Kembali</a>
+            <a href="transaction.php" class="btn">Kembali ke Menu</a>
         </div>
     </div>
 </body>

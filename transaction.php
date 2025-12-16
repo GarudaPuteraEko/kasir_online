@@ -61,39 +61,42 @@ $grand_total = $total_result->fetch_assoc()['total'] ?? 0;
 
 // Checkout
 if (isset($_POST['checkout'])) {
-    $payment_method = $_POST['payment_method'] ?? 'Tunai';
+    $paid_amount = (int)($_POST['paid_amount'] ?? 0);
 
-    // Generate session unik untuk checkout ini
-    $checkout_session = uniqid('sess_', true);  // Contoh: sess_67a8b9c0d1e2f
-
-    $cart_items = $conn->query("SELECT c.*, p.price, p.stock FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = $user_id");
-
-    $all_success = true;
-
-    while ($item = $cart_items->fetch_assoc()) {
-        $qty = $item['quantity'];
-        $total_price = $item['price'] * $qty;
-
-        if ($item['stock'] >= $qty) {
-            // Kurangi stok
-            $new_stock = $item['stock'] - $qty;
-            $conn->query("UPDATE products SET stock = $new_stock WHERE id = " . $item['product_id']);
-
-            // Catat transaksi dengan checkout_session
-            $conn->query("INSERT INTO transactions (user_id, product_id, quantity, total_price, payment_method, checkout_session) 
-                          VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, '$payment_method', '$checkout_session')");
-        } else {
-            $all_success = false;
-        }
-    }
-
-    if ($all_success && $grand_total > 0) {
-        $conn->query("DELETE FROM cart WHERE user_id = $user_id");
-        // Redirect ke receipt dengan session
-        header("Location: receipt.php?session=$checkout_session");
-        exit();
+    if ($paid_amount < $grand_total) {
+        $message = "Uang pembayaran kurang! Total Rp " . number_format($grand_total) . ", dibayar Rp " . number_format($paid_amount);
     } else {
-        $message = "Checkout gagal: Stok tidak cukup atau keranjang kosong.";
+        // Generate session unik
+        $checkout_session = uniqid('sess_', true);
+
+        $cart_items = $conn->query("SELECT c.*, p.price, p.stock FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = $user_id");
+
+        $all_success = true;
+
+        while ($item = $cart_items->fetch_assoc()) {
+            $qty = $item['quantity'];
+            $total_price = $item['price'] * $qty;
+
+            if ($item['stock'] >= $qty) {
+                $new_stock = $item['stock'] - $qty;
+                $conn->query("UPDATE products SET stock = $new_stock WHERE id = " . $item['product_id']);
+
+                $conn->query("INSERT INTO transactions (user_id, product_id, quantity, total_price, payment_method, checkout_session) 
+                              VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, 'Tunai', '$checkout_session')");
+            } else {
+                $all_success = false;
+            }
+        }
+
+        if ($all_success && $grand_total > 0) {
+            $conn->query("DELETE FROM cart WHERE user_id = $user_id");
+            // Kirim paid_amount & kembalian ke receipt
+            $change = $paid_amount - $grand_total;
+            header("Location: receipt.php?session=$checkout_session&paid=$paid_amount&change=$change");
+            exit();
+        } else {
+            $message = "Checkout gagal: Stok tidak cukup.";
+        }
     }
 }
 ?>
@@ -208,7 +211,6 @@ if (isset($_POST['checkout'])) {
         <?php endif; ?>
     </div>
 
-    <!-- Kanan: Total & Checkout -->
     <div class="right">
         <h3>Ringkasan</h3>
         <hr>
@@ -225,12 +227,29 @@ if (isset($_POST['checkout'])) {
             </div>
 
             <form method="POST">
-                <strong>Metode Pembayaran:</strong><br>
-                <select name="payment_method" style="width:100%; padding:8px; margin:10px 0;">
-                    <option value="Tunai">Tunai (Cash)</option>
-                    <option value="QRIS/E-Wallet">QRIS / E-Wallet</option>
-                    <option value="Kartu Debit/Kredit">Kartu Debit / Kredit</option>
-                </select>
+                <strong>Metode Pembayaran: Tunai</strong><br><br>
+
+                <strong>Masukkan Nominal Pembayaran:</strong><br>
+                <input type="number" name="paid_amount" min="<?= $grand_total ?>" value="<?= $grand_total ?>" 
+                    style="width:100%; padding:15px; margin:15px 0; font-size:18px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box;" 
+                    placeholder="Min Rp <?= number_format($grand_total) ?>" 
+                    required>
+
+                <?php if (isset($_POST['checkout'])): 
+                    $paid = (int)($_POST['paid_amount'] ?? 0);
+                    $change = $paid - $grand_total;
+                ?>
+                    <?php if ($change >= 0): ?>
+                        <div style="font-size:20px; font-weight:bold; color:green; text-align:center; margin:15px 0;">
+                            Kembalian: Rp <?= number_format($change) ?>
+                        </div>
+                    <?php else: ?>
+                        <div style="font-size:18px; font-weight:bold; color:red; text-align:center; margin:15px 0;">
+                            Uang tidak cukup! Kurang Rp <?= number_format(abs($change)) ?>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+
                 <button type="submit" name="checkout" class="checkout-btn">
                     Checkout & Cetak Struk
                 </button>
