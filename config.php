@@ -1,8 +1,8 @@
 <?php
 // Koneksi ke database (config.php)
 $servername = "localhost";
-$username = "root"; // Default XAMPP username
-$password = ""; // Default XAMPP password
+$username = "root"; 
+$password = ""; 
 $dbname = "kasir_db";
 
 // Buat koneksi

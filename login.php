@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .container { 
             max-width: 400px; 
             margin: auto; 
-            padding: 40px;  /* Naikkan dari 20px jadi 40px biar ada ruang kiri-kanan */
+            padding: 40px;  
             background: #fff; 
             border-radius: 10px; 
             box-shadow: 0 0 10px rgba(0,0,0,0.1); 
@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin: 10px 0; 
             border: 1px solid #ccc; 
             border-radius: 5px; 
-            box-sizing: border-box;  /* Tambahin ini! Penting banget */
+            box-sizing: border-box;  
         }
         button { 
             width: 100%; 

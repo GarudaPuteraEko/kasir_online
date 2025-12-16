@@ -1,7 +1,7 @@
 <?php
 include 'config.php';
 session_start();
-require_login();  // Pastikan login
+require_login();  
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");

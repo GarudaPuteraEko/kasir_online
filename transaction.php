@@ -226,10 +226,9 @@ if (isset($_POST['checkout'])) {
             color: white;
         }
 
-        /* Grid card lebih kecil */
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Dikecilin dari 280px jadi 220px */
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
             gap: 20px;
         }
 
@@ -250,19 +249,19 @@ if (isset($_POST['checkout'])) {
 
         .product-img {
             width: 100%;
-            height: 140px; /* Dikecilin dari 200px */
+            height: 140px; 
             object-fit: cover;
         }
 
         .product-info {
-            padding: 15px; /* Padding lebih kecil */
+            padding: 15px; 
             flex-grow: 1;
             display: flex;
             flex-direction: column;
         }
 
         .product-name {
-            font-size: 1.1rem; /* Lebih kecil */
+            font-size: 1.1rem; 
             font-weight: 600;
             color: var(--primary);
             margin-bottom: 6px;
@@ -316,7 +315,7 @@ if (isset($_POST['checkout'])) {
         }
 
         .quantity-input input {
-            width: 70px; /* Lebih kecil */
+            width: 70px; 
             padding: 8px;
             border: 1px solid var(--border);
             border-radius: 8px;
