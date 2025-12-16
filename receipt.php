@@ -157,7 +157,7 @@ $payment_method = $rows[0]['payment_method'] ?? 'Tunai';
         </div>
 
         <div class="no-print" style="margin-top:40px; text-align:center; font-size:13px;">
-            <a href="cart.php" class="btn">Kembali ke Keranjang</a>
+            <a href="transaction.php" class="btn">← Kembali</a>
         </div>
     </div>
 </body>

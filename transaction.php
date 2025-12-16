@@ -45,42 +45,50 @@ if (!empty($params)) {
 $stmt->execute();
 $products = $stmt->get_result();
 
-// Ambil kategori untuk dropdown
+// Ambil kategori
 $categories = $conn->query("SELECT * FROM categories ORDER BY name");
 
-// Hitung cart
-$cart_count_result = $conn->query("SELECT COALESCE(SUM(quantity), 0) AS total FROM cart WHERE user_id = $user_id");
-$cart_count = $cart_count_result->fetch_assoc()['total'];
+// Ambil jumlah di cart untuk setiap produk
+$cart_qty = [];
+$cart_result = $conn->query("SELECT product_id, quantity FROM cart WHERE user_id = $user_id");
+while ($c = $cart_result->fetch_assoc()) {
+    $cart_qty[$c['product_id']] = $c['quantity'];
+}
 
-// Proses tambah cart
-if (isset($_POST['add_to_cart'])) {
-    $product_id = $_POST['add_to_cart'];
-    $quantity = (int)($_POST['quantity'][$product_id] ?? 1);
-    if ($quantity < 1) $quantity = 1;
+// Hitung grand total
+$total_result = $conn->query("SELECT SUM(c.quantity * p.price) AS total FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = $user_id");
+$grand_total = $total_result->fetch_assoc()['total'] ?? 0;
 
-    $product = $conn->query("SELECT stock FROM products WHERE id = $product_id")->fetch_assoc();
+// Checkout
+if (isset($_POST['checkout'])) {
+    $payment_method = $_POST['payment_method'] ?? 'Tunai';
 
-    if ($product && $product['stock'] >= $quantity) {
-        $check = $conn->query("SELECT * FROM cart WHERE user_id = $user_id AND product_id = $product_id");
-        if ($check->num_rows > 0) {
-            $conn->query("UPDATE cart SET quantity = quantity + $quantity WHERE user_id = $user_id AND product_id = $product_id");
+    $cart_items = $conn->query("SELECT c.*, p.price, p.stock FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = $user_id");
+
+    $all_success = true;
+
+    while ($item = $cart_items->fetch_assoc()) {
+        $qty = $item['quantity'];
+        $total_price = $item['price'] * $qty;
+
+        if ($item['stock'] >= $qty) {
+            $new_stock = $item['stock'] - $qty;
+            $conn->query("UPDATE products SET stock = $new_stock WHERE id = " . $item['product_id']);
+
+            $conn->query("INSERT INTO transactions (user_id, product_id, quantity, total_price, payment_method) 
+                          VALUES ($user_id, " . $item['product_id'] . ", $qty, $total_price, '$payment_method')");
         } else {
-            $conn->query("INSERT INTO cart (user_id, product_id, quantity) VALUES ($user_id, $product_id, $quantity)");
+            $all_success = false;
         }
-        $message = "Produk berhasil ditambahkan ke keranjang!";
-    } else {
-        $message = "Stok tidak cukup!";
     }
 
-    $redirect_url = "transaction.php";
-    if (!empty($_GET['search'])) {
-        $redirect_url .= "?search=" . urlencode($_GET['search']);
+    if ($all_success && $grand_total > 0) {
+        $conn->query("DELETE FROM cart WHERE user_id = $user_id");
+        header("Location: receipt.php");
+        exit();
+    } else {
+        $message = "Checkout gagal: Stok tidak cukup atau keranjang kosong.";
     }
-    if (!empty($_GET['category'])) {
-        $redirect_url .= ($redirect_url == "transaction.php" ? "?" : "&") . "category=" . urlencode($_GET['category']);
-    }
-    header("Location: $redirect_url");
-    exit();
 }
 ?>
 
@@ -91,63 +99,73 @@ if (isset($_POST['add_to_cart'])) {
     <title>Pilih Produk</title>
     <style>
         body { background-color: #f5e6d3; font-family: Arial, sans-serif; color: #4b3832; }
-        .container { max-width: 800px; margin: auto; padding: 20px; }
+        .container { display: flex; gap: 20px; max-width: 1200px; margin: auto; padding: 20px; }
+        .left { flex: 2; }
+        .right { flex: 1; background: #fff; padding: 20px; border: 1px solid #ccc; border-radius: 8px; position: sticky; top: 20px; height: fit-content; }
         h3 { color: #854442; }
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; }
         th { background: #854442; color: white; }
         img { width: 80px; height: 80px; object-fit: cover; }
-        input[type="number"] { width: 60px; padding: 5px; }
-        button { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        input[type="number"] { width: 80px; padding: 5px; font-size: 16px; }
+        button { padding: 5px 10px; background: #854442; color: white; border: none; cursor: pointer; border-radius: 3px; }
         button:hover { background: #4b3832; }
         .btn { padding: 5px 10px; background: #854442; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
         .btn:hover { background: #4b3832; }
-        a { color: #854442; text-decoration: none;}
+        a { color: #854442; text-decoration: none; }
         select, input[type="text"] { padding: 5px; margin: 5px 0; }
         .message { text-align: center; padding: 10px; font-weight: bold; }
+        .total { font-size: 24px; font-weight: bold; text-align: center; margin: 30px 0; color: #854442; }
+        .checkout-btn { width: 100%; padding: 15px; font-size: 18px; background: #2e7d32; color: white; border: none; cursor: pointer; }
+        .checkout-btn:hover { background: #1b5e20; }
     </style>
+    <script>
+        function updateCart(productId, qty) {
+            if (qty < 0) qty = 0;
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "update_cart.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send("product_id=" + productId + "&quantity=" + qty);
+            xhr.onload = function() {
+                location.reload();  // Refresh untuk update total
+            };
+        }
+    </script>
 </head>
 <body>
 <div class="container">
-    <h3>Pilih Produk</h3>
-    <a href="cart.php" class="btn">Keranjang (<?= $cart_count ?> item)</a>
-    <a href="logout.php" class="btn">Logout</a>
-    <hr>
+    <!-- Kiri: Daftar Produk -->
+    <div class="left">
+        <h3>Pilih Produk</h3>
+        <a href="logout.php" class="btn">Logout</a>
+        <hr>
 
-    <!-- Filter Simple -->
-    <form method="GET">
-        Cari nama: <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="ketik nama produk">
-        
-        Kategori: 
-        <select name="category">
-            <option value="">-- Semua --</option>
-            <?php while($cat = $categories->fetch_assoc()): ?>
-            <option value="<?= $cat['id'] ?>" <?= $category_id == $cat['id'] ? 'selected' : '' ?>><?= htmlspecialchars($cat['name']) ?></option>
-            <?php endwhile; ?>
-        </select>
-        
-        <button type="submit">Filter</button>
-        <?php if ($search || $category_id): ?>
-            <a href="transaction.php" class="btn">Reset</a>
+        <!-- Filter -->
+        <form method="GET">
+            Cari nama: <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="ketik nama produk">
+            Kategori: 
+            <select name="category">
+                <option value="">-- Semua --</option>
+                <?php while($cat = $categories->fetch_assoc()): ?>
+                <option value="<?= $cat['id'] ?>" <?= $category_id == $cat['id'] ? 'selected' : '' ?>><?= htmlspecialchars($cat['name']) ?></option>
+                <?php endwhile; ?>
+            </select>
+            <button type="submit">Filter</button>
+            <?php if ($search || $category_id): ?>
+                <a href="transaction.php" class="btn">Reset</a>
+            <?php endif; ?>
+        </form>
+        <hr>
+
+        <?php if (isset($message)): ?>
+            <div class="message" style="color: red;">
+                <?= $message ?>
+            </div>
         <?php endif; ?>
-    </form>
-    <hr>
 
-    <?php if (isset($message)): ?>
-        <div class="message" style="color: <?= strpos($message, 'berhasil') ? 'green' : 'red' ?>;">
-            <?= $message ?>
-        </div>
-    <?php endif; ?>
-
-    <form method="POST">
         <?php if ($products->num_rows == 0): ?>
-            Tidak ada produk ditemukan untuk pencarian "<strong><?= htmlspecialchars($search) ?></strong>".
-                <a href="dashboard.php">Tampilkan semua produk</a>
+            <p>Tidak ada produk yang tersedia.</p>
         <?php else: ?>
-
-        <?php if ($search !== ''): ?>
-            <p>Menampilkan hasil pencarian untuk "<strong><?= htmlspecialchars($search) ?></strong>" (<?= $products->num_rows ?> produk ditemukan)</p>
-        <?php endif; ?>
             <table>
                 <tr>
                     <th>Gambar</th>
@@ -157,9 +175,10 @@ if (isset($_POST['add_to_cart'])) {
                     <th>Harga</th>
                     <th>Stok</th>
                     <th>Jumlah</th>
-                    <th>Aksi</th>
                 </tr>
-                <?php while($row = $products->fetch_assoc()): ?>
+                <?php while($row = $products->fetch_assoc()): 
+                    $current_qty = $cart_qty[$row['id']] ?? 0;
+                ?>
                 <tr>
                     <td>
                         <?php if ($row['image']): ?>
@@ -173,13 +192,45 @@ if (isset($_POST['add_to_cart'])) {
                     <td><?= htmlspecialchars($row['description'] ?: '-') ?></td>
                     <td><?= $row['price'] ?></td>
                     <td><?= $row['stock'] ?></td>
-                    <td><input type="number" name="quantity[<?= $row['id'] ?>]" value="1" min="1" max="<?= $row['stock'] ?>"></td>
-                    <td><button type="submit" name="add_to_cart" value="<?= $row['id'] ?>">Tambah</button></td>
+                    <td>
+                        <input type="number" min="0" max="<?= $row['stock'] ?>" value="<?= $current_qty ?>" 
+                               onchange="updateCart(<?= $row['id'] ?>, this.value)">
+                    </td>
                 </tr>
                 <?php endwhile; ?>
             </table>
         <?php endif; ?>
-    </form>
+    </div>
+
+    <!-- Kanan: Total & Checkout -->
+    <div class="right">
+        <h3>Ringkasan</h3>
+        <hr>
+
+        <?php if ($grand_total == 0): ?>
+            <p style="text-align:center; font-size:18px; color:#888; margin:50px 0;">
+                Keranjang kosong<br>
+                Ubah jumlah produk di sebelah kiri
+            </p>
+        <?php else: ?>
+            <div class="total">
+                Total Bayar<br>
+                Rp <?= number_format($grand_total) ?>
+            </div>
+
+            <form method="POST">
+                <strong>Metode Pembayaran:</strong><br>
+                <select name="payment_method" style="width:100%; padding:8px; margin:10px 0;">
+                    <option value="Tunai">Tunai (Cash)</option>
+                    <option value="QRIS/E-Wallet">QRIS / E-Wallet</option>
+                    <option value="Kartu Debit/Kredit">Kartu Debit / Kredit</option>
+                </select>
+                <button type="submit" name="checkout" class="checkout-btn">
+                    Checkout & Cetak Struk
+                </button>
+            </form>
+        <?php endif; ?>
+    </div>
 </div>
 </body>
 </html>
