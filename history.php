@@ -1,16 +1,18 @@
 <?php
 include 'config.php';
 session_start();
-require_login();
+require_login();  // Pastikan login
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
+
 $user_id = $_SESSION['user_id'];
 
-// Ambil semua transaksi user, urut dari terbaru
+// Query riwayat transaksi
 $transactions = $conn->query("
-    SELECT t.*, p.name, p.price, u.username
+    SELECT t.*, p.name, p.price, u.username 
     FROM transactions t 
     JOIN products p ON t.product_id = p.id 
     LEFT JOIN users u ON t.user_id = u.id
@@ -39,8 +41,15 @@ $transactions = $conn->query("
 </head>
 <body>
 <div class="container">
-    <h3>Riwayat Transaksi</h3> 
-    <a href="dashboard.php" class="btn">← Kembali ke Dashboard</a>
+    <h3>Riwayat Transaksi</h3>
+
+    <!-- Tombol Kembali hanya untuk Admin -->
+    <?php if (is_admin()): ?>
+        <a href="dashboard.php" class="btn">← Kembali ke Dashboard</a>
+    <?php else: ?>
+        <a href="transaction.php" class="btn">← Kembali ke Menu</a>
+    <?php endif; ?>
+
     <hr>
 
     <?php if ($transactions->num_rows == 0): ?>
@@ -54,7 +63,9 @@ $transactions = $conn->query("
                 <th>Harga Satuan</th>
                 <th>Jumlah</th>
                 <th>Total</th>
-                <th>Dibuat Oleh</th>
+                <?php if (is_admin()): ?>
+                    <th>Dibuat Oleh</th>
+                <?php endif; ?>
             </tr>
             <?php 
             $no = 1;
@@ -63,11 +74,13 @@ $transactions = $conn->query("
             <tr>
                 <td><?= $no++ ?></td>
                 <td><?= date('d-m-Y H:i:s', strtotime($row['transaction_date'])) ?></td>
-                <td><?= $row['name'] ?></td>
-                <td><?= $row['price'] ?></td>
+                <td><?= htmlspecialchars($row['name']) ?></td>
+                <td><?= number_format($row['price']) ?></td>
                 <td><?= $row['quantity'] ?></td>
-                <td><?= $row['total_price'] ?></td>
-                <td><?= htmlspecialchars($row['username'] ?? 'Unknown') ?></td>
+                <td><?= number_format($row['total_price']) ?></td>
+                <?php if (is_admin()): ?>
+                    <td><?= htmlspecialchars($row['username'] ?? 'Unknown') ?></td>
+                <?php endif; ?>
             </tr>
             <?php endwhile; ?>
         </table>

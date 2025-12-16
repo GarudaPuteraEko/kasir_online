@@ -223,12 +223,11 @@ if (isset($_POST['checkout'])) {
             </p>
         <?php else: ?>
             <div class="total">
-                Total Bayar<br>
+                Total Harga<br>
                 Rp <?= number_format($grand_total) ?>
             </div>
 
             <form method="POST">
-                <strong>Metode Pembayaran: Tunai</strong><br><br>
 
                 <strong>Masukkan Nominal Pembayaran:</strong><br>
                 <input type="number" name="paid_amount" min="<?= $grand_total ?>" value="<?= $grand_total ?>" 
